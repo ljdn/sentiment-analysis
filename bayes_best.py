@@ -222,19 +222,21 @@ def evaluate_bae(n):
                 elif review.startswith("movies-1"):
                     p_false += 1
             else:
-                if review.startswith("moview-1"):
+                if review.startswith("movies-1"):
                     n_actual += 1
                 else:
                     n_false += 1
-        p_recall = float(p_actual) / len([x for x in testing_data and x in positives])
-        n_recall = float(n_actual) / len([x for x in testing_data and x in negatives])
+        p_recall = float(p_actual) / len([x for x in testing_data if x in positives])
+        n_recall = float(n_actual) / len([x for x in testing_data if x in negatives])
+        print "recall (pos / neg): " + str(p_recall) + " / " + str(n_recall)
+
         p_precision = float(p_actual) / (p_actual + p_false)
         n_precision = float(n_actual) / (n_actual + n_false)
+        print "precision (pos / neg): " + str(p_precision) +  " / " + str(n_precision)
+
         p_fm = 2*(p_recall * p_precision) / (p_recall + p_precision)
         n_fm = 2*(n_recall * n_precision) / (n_recall + n_precision)
 
-        print "recall (pos / neg): " + str(p_recall) + " / " + str(n_recall)
-        print "precision (pos / neg): " + str(p_precision) +  " / " + str(n_precision)
         print "f-measure (pos / neg): " + str(p_fm) + " / " + str(n_fm)
 
         # remove saved dictionaries
