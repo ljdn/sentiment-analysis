@@ -181,7 +181,7 @@ def evaluate_bae(n):
 
     if os.path.isfile("pickled_pos.dat") and os.path.isfile("pickled_neg.dat"):
         os.remove("pickled_neg.dat")
-        os.remove("pickled_neg.dat")
+        os.remove("pickled_pos.dat")
         os.remove("two_pos.dat")
         os.remove("two_neg.dat")
 
