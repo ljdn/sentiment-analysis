@@ -8,7 +8,7 @@ import math, os, pickle, re
 
 class Bayes_Classifier:
 
-    def __init__(self):
+    def __init__(self, eval = False, training_data = []):
         """This method initializes and trains the Naive Bayes Sentiment Classifier.  If a
         cache of a trained classifier has been stored, it loads this cache.  Otherwise,
         the system will proceed through training.  After running this method, the classifier
@@ -34,6 +34,9 @@ class Bayes_Classifier:
         for fFileObj in os.walk("movie_reviews/movies_reviews/"):
             lFileList = fFileObj[2]
             break
+
+        if eval:
+            lFileList = training_data
 
         # parse file name, determine if positive (5 stars) or negative (1 star)
         for training_file in lFileList:
@@ -152,3 +155,72 @@ class Bayes_Classifier:
                 orig_dict[word] = 1
 
         return orig_dict
+
+def evaluate_bae(n):
+    """ Calculates precision, recall, and f-measure for classifier; n-fold validation """
+
+    if os.path.isfile("pickled_pos.dat") and os.path.isfile("pickled_neg.dat"):
+        os.remove("pickled_neg.dat")
+        os.remove("pickled_pos.dat")
+        os.remove("two_pos.dat")
+        os.remove("two_neg.dat")
+
+    # separate into positive and negative
+    lFileList = []
+    for fFileObj in os.walk("movie_reviews/movies_reviews/"):
+        lFileList = fFileObj[2]
+        break
+
+    negatives = []
+    positives = []
+
+    for file in lFileList:
+        if file.startswith("movies-1"):
+            negatives.append(file)
+        elif file.startswith("movies-5"):
+            positives.append(file)
+
+    len_slice = min(len(negatives), len(positives)) * 1/n
+
+    for i in range(n):
+        p_actual = 0
+        p_false = 0
+        n_actual = 0
+        n_false = 0
+        print "slice: " + str(i)
+        # train
+        training_data = negatives[i*(len(negatives)/n):i*(len(negatives)/n)+len_slice] + positives[i*len(positives)/n:i*len(positives)/n+len_slice]
+        bc = Bayes_Classifier(True, training_data)
+        # test
+        testing_data = [x for x in lFileList if x not in training_data]
+        for review in testing_data:
+            tText = bc.loadFile("movie_reviews/movies_reviews/" + str(review))
+            result = bc.classify(tText)
+            if result == "positive":
+                if review.startswith("movies-5"):
+                    p_actual += 1
+                elif review.startswith("movies-1"):
+                    p_false += 1
+            else:
+                if review.startswith("movies-1"):
+                    n_actual += 1
+                else:
+                    n_false += 1
+        p_recall = float(p_actual) / len([x for x in testing_data if x in positives])
+        n_recall = float(n_actual) / len([x for x in testing_data if x in negatives])
+        print "recall (pos / neg): " + str(p_recall) + " / " + str(n_recall)
+
+        p_precision = float(p_actual) / (p_actual + p_false)
+        n_precision = float(n_actual) / (n_actual + n_false)
+        print "precision (pos / neg): " + str(p_precision) +  " / " + str(n_precision)
+
+        p_fm = 2*(p_recall * p_precision) / (p_recall + p_precision)
+        n_fm = 2*(n_recall * n_precision) / (n_recall + n_precision)
+
+        print "f-measure (pos / neg): " + str(p_fm) + " / " + str(n_fm)
+
+        # remove saved dictionaries
+        os.remove("pickled_neg.dat")
+        os.remove("pickled_neg.dat")
+        os.remove("two_pos.dat")
+        os.remove("two_neg.dat")
