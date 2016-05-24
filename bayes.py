@@ -25,10 +25,9 @@ class Bayes_Classifier:
         else:
             self.train()
 
-    def train(self):
+    def train(self, eval = False, training_data = []):
         """Trains the Naive Bayes Sentiment Classifier."""
 
-        print "Training..."
         # Get names of all files in directory
         lFileList = []
         for fFileObj in os.walk("movie_reviews/movies_reviews/"):
@@ -162,8 +161,6 @@ def evaluate_bae(n):
     if os.path.isfile("pickled_pos.dat") and os.path.isfile("pickled_neg.dat"):
         os.remove("pickled_neg.dat")
         os.remove("pickled_pos.dat")
-        os.remove("two_pos.dat")
-        os.remove("two_neg.dat")
 
     # separate into positive and negative
     lFileList = []
@@ -221,6 +218,4 @@ def evaluate_bae(n):
 
         # remove saved dictionaries
         os.remove("pickled_neg.dat")
-        os.remove("pickled_neg.dat")
-        os.remove("two_pos.dat")
-        os.remove("two_neg.dat")
+        os.remove("pickled_pos.dat")
